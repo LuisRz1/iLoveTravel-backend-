@@ -79,7 +79,7 @@ public class UserService {
                 // Las credenciales son válidas
                 return useremail;
             }else{
-                throw new IllegalStateException("contraseña incorrecta");
+                throw new IllegalStateException("Email o Contraseña Incorrecta");
             }
         }else{
             throw new IllegalStateException("Correo y contraseña incorrectas");
