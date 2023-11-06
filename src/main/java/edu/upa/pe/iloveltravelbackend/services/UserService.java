@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +34,7 @@ public class UserService {
         String lastName = user.getLastName();
 
         // Realizar la búsqueda en la base de datos
-        List<User> users = userRepository.findByFirstNameAndLastName(firstName, lastName);
+        Optional<User> users = userRepository.findByFirstNameAndLastName(firstName, lastName);
 
         if (users.isEmpty()) {
             throw new IllegalStateException("Usuario no encontrado");
