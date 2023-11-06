@@ -39,10 +39,13 @@ public class UserController {
         }
     }
     @PostMapping("/register")
-    public String addUser(@RequestBody User user){
-        user.setRegistrationDate(Instant.now());
-        userService.addUser(user);
-        return "Registrado correctamente";
+    public ResponseEntity<?> addUser(@RequestBody User user){
+        try{
+            String newUser = userService.addUser(user);
+            return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+        } catch (IllegalStateException sms){
+            return new ResponseEntity<>(sms.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
