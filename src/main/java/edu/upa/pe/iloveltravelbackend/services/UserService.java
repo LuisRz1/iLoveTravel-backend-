@@ -26,7 +26,6 @@ public class UserService {
         for (User user : users) {
             userProfiles.add(new UserDTO(user));
         }
-
         return userProfiles;
     }
     public List<UserDTO> searchUsers(User user) {
@@ -44,7 +43,6 @@ public class UserService {
         List<UserDTO> userDTOs = users.stream()
                 .map(UserDTO::new)  // Aquí asumo que tienes un constructor en UserDTO que acepta un User
                 .collect(Collectors.toList());
-
         return userDTOs;
     }
 
