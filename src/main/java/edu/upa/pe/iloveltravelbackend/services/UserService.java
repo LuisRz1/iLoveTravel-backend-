@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,7 +26,6 @@ public class UserService {
         for (User user : users) {
             userProfiles.add(new UserDTO(user));
         }
-
         return userProfiles;
     }
     public List<UserDTO> searchUsers(User user) {
@@ -33,7 +33,7 @@ public class UserService {
         String lastName = user.getLastName();
 
         // Realizar la búsqueda en la base de datos
-        List<User> users = userRepository.findByFirstNameAndLastName(firstName, lastName);
+        Optional<User> users = userRepository.findByFirstNameAndLastName(firstName, lastName);
 
         if (users.isEmpty()) {
             throw new IllegalStateException("Usuario no encontrado");
@@ -43,7 +43,6 @@ public class UserService {
         List<UserDTO> userDTOs = users.stream()
                 .map(UserDTO::new)  // Aquí asumo que tienes un constructor en UserDTO que acepta un User
                 .collect(Collectors.toList());
-
         return userDTOs;
     }
 
@@ -80,7 +79,7 @@ public class UserService {
                 // Las credenciales son válidas
                 return useremail;
             }else{
-                throw new IllegalStateException("contraseña incorrecta");
+                throw new IllegalStateException("Email o Contraseña Incorrecta");
             }
         }else{
             throw new IllegalStateException("Correo y contraseña incorrectas");
