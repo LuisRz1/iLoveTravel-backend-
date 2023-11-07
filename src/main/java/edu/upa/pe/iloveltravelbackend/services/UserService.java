@@ -1,25 +1,32 @@
 package edu.upa.pe.iloveltravelbackend.services;
 
 import edu.upa.pe.iloveltravelbackend.dtos.UserDTO;
+import edu.upa.pe.iloveltravelbackend.models.ChatMessage;
 import edu.upa.pe.iloveltravelbackend.models.User;
 import edu.upa.pe.iloveltravelbackend.repositories.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class UserService {
     private final UserRepository userRepository;
+    private final ChatMessageService chatMessageService;
 
-    public UserService(UserRepository userRepository) {
+    @Autowired
+    public UserService(UserRepository userRepository, @Lazy ChatMessageService chatMessageService) {
         this.userRepository = userRepository;
+        this.chatMessageService = chatMessageService;
     }
+
     public List<UserDTO> getAllUserProfiles() {
         List<User> users = userRepository.findAll();
         List<UserDTO> userProfiles = new ArrayList<>();
@@ -28,12 +35,9 @@ public class UserService {
         }
         return userProfiles;
     }
-    public List<UserDTO> searchUsers(User user) {
-        String firstName = user.getFirstName();
-        String lastName = user.getLastName();
-
+    public List<UserDTO> searchUsers(String firstName, String lastName) {
         // Realizar la búsqueda en la base de datos
-        Optional<User> users = userRepository.findByFirstNameAndLastName(firstName, lastName);
+        List<User> users = userRepository.findByFirstNameAndLastName(firstName, lastName);
 
         if (users.isEmpty()) {
             throw new IllegalStateException("Usuario no encontrado");
@@ -41,10 +45,11 @@ public class UserService {
 
         // Mapear los resultados a UserDTO y devolverlos
         List<UserDTO> userDTOs = users.stream()
-                .map(UserDTO::new)  // Aquí asumo que tienes un constructor en UserDTO que acepta un User
+                .map(user -> new UserDTO(user))
                 .collect(Collectors.toList());
         return userDTOs;
     }
+
 
     private boolean isEmptyOrWhitespace(String value) {
         return value == null || value.trim().isEmpty();
@@ -67,22 +72,54 @@ public class UserService {
 
     }
 
-    public User verifyAccount(String email, String password) {
+    public ResponseEntity<?> login(String email, String password) {
         if (isEmptyOrWhitespace(email) || isEmptyOrWhitespace(password)) {
-            throw new IllegalStateException("Correo y contraseña son campos requeridos");
+            return new ResponseEntity<>("Correo y contraseña son campos requeridos", HttpStatus.UNAUTHORIZED);
         }
-        List<User> existingUserByCount = userRepository.findByEmail(email);
-        if (!existingUserByCount.isEmpty()) {
-            User useremail = existingUserByCount.get(0);
-            // Verificar si la contraseña coincide
-            if (useremail.getPassword().equals(password)) {
-                // Las credenciales son válidas
-                return useremail;
-            }else{
-                throw new IllegalStateException("Email o Contraseña Incorrecta");
-            }
-        }else{
-            throw new IllegalStateException("Correo y contraseña incorrectas");
+
+        List<User> existingUsers = userRepository.findByEmail(email);
+
+        if (existingUsers.isEmpty()) {
+            return new ResponseEntity<>("Correo o contraseña incorrectos", HttpStatus.UNAUTHORIZED);
         }
+
+        User user = existingUsers.get(0);
+
+        if (!user.getPassword().equals(password)) {
+            return new ResponseEntity<>("Correo o contraseña incorrectos", HttpStatus.UNAUTHORIZED);
+        }
+
+        List<ChatMessage> receivedMessages = chatMessageService.getReceivedMessagesForUser(user);
+        int receivedMessageCount = receivedMessages.size();
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("Sesion iniciada Bienvenido ->", user.getFirstName());
+
+        Map<String, Object> aboutUser = new LinkedHashMap<>();
+        aboutUser.put("Nombre Completo", user.getFirstName() + " " + user.getLastName());
+        aboutUser.put("Email", user.getEmail());
+        aboutUser.put("Nacionalidad", user.getNationality());
+        aboutUser.put("Fecha de Cumpleaños", user.getBirthdate().toString());
+
+        Map<String, List<String>> receivedMessagesMap = new LinkedHashMap<>();
+        for (ChatMessage message : receivedMessages) {
+            String senderName = message.getSender().getFirstName() + " " + message.getSender().getLastName();
+            receivedMessagesMap.computeIfAbsent(senderName, key -> new ArrayList<>()).add(message.getMessage());
+        }
+
+        List<Map<String, Object>> chatsList = receivedMessagesMap.entrySet().stream()
+                .map(entry -> {
+                    Map<String, Object> chatData = new LinkedHashMap<>();
+                    chatData.put("Enviado por", entry.getKey());
+                    chatData.put("Mensaje(s)", entry.getValue());
+                    return chatData;
+                })
+                .collect(Collectors.toList());
+
+        response.put("Acerca de", aboutUser);
+        response.put("Cantidad de mensajes recibos", receivedMessageCount);
+        response.put("Chats", chatsList);
+
+        return ResponseEntity.ok(response);
     }
 }
