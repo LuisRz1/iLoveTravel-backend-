@@ -27,16 +27,30 @@ public class UserController {
     }
     @PostMapping("/search")
     public ResponseEntity<?> searchUsers(@RequestBody Map<String, String> searchRequest) {
-        String firstName = searchRequest.get("firstName");
-        String lastName = searchRequest.get("lastName");
-
-        try {
-            List<UserDTO> users = userService.searchUsers(firstName, lastName);
-            return ResponseEntity.ok(users);
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        if (searchRequest.containsKey("firstName") && searchRequest.containsKey("lastName")) {
+            // Búsqueda por nombre
+            String firstName = searchRequest.get("firstName");
+            String lastName = searchRequest.get("lastName");
+            try {
+                List<UserDTO> users = userService.searchUsers(firstName, lastName);
+                return ResponseEntity.ok(users);
+            } catch (IllegalStateException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            }
+        } else if (searchRequest.containsKey("nationality")) {
+            // Búsqueda por país
+            String nationality = searchRequest.get("nationality");
+            try {
+                List<UserDTO> users = userService.searchUsersByCountry(nationality);
+                return ResponseEntity.ok(users);
+            } catch (IllegalStateException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Parámetros de búsqueda incorrectos");
         }
     }
+
     @PostMapping("/register")
     public ResponseEntity<?> addUser(@RequestBody User user){
         try{
