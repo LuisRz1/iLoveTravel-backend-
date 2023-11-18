@@ -50,6 +50,22 @@ public class UserService {
         return userDTOs;
     }
 
+    public List<UserDTO> searchUsersByCountry(String country) {
+        // Realizar la búsqueda en la base de datos por país
+        List<User> users = userRepository.findByNationality(country);
+
+        if (users.isEmpty()) {
+            throw new IllegalStateException("Usuarios no encontrados para el país especificado");
+        }
+
+        // Mapear los resultados a UserDTO y devolverlos
+        List<UserDTO> userDTOs = users.stream()
+                .map(user -> new UserDTO(user))
+                .collect(Collectors.toList());
+        return userDTOs;
+    }
+
+
 
     private boolean isEmptyOrWhitespace(String value) {
         return value == null || value.trim().isEmpty();
