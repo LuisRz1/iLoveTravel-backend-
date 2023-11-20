@@ -14,8 +14,9 @@ import lombok.NoArgsConstructor;
 public class Article {
 
     @Id
+    @Column(name = "aricle_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idArticle;
 
     @Column(name = "country")
     private String country;

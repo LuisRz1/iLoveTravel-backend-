@@ -15,8 +15,9 @@ import java.time.Instant;
 @NoArgsConstructor
 public class ChatMessage {
     @Id
+    @Column(name = "chat_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long chatid;
     @ManyToOne
     @JoinColumn(name = "sender_id")
     private User sender;

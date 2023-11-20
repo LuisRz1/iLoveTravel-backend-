@@ -71,7 +71,7 @@ public class UserService {
         return value == null || value.trim().isEmpty();
     }
     public String addUser(User user){
-        List<User> existingUserByEmail = userRepository.findByEmail(user.getEmail());
+        Optional<User> existingUserByEmail = userRepository.findByEmail(user.getEmail());
         user.setRegistrationDate(Instant.now());
         if (isEmptyOrWhitespace(user.getFirstName()) || isEmptyOrWhitespace(user.getLastName()) || isEmptyOrWhitespace(user.getEmail()) || isEmptyOrWhitespace(user.getNationality()) || isEmptyOrWhitespace(user.getPassword()) || user.getBirthdate() == null) {
             throw new IllegalStateException("Todos los campos son requeridos");
@@ -88,22 +88,18 @@ public class UserService {
 
     }
 
-    public ResponseEntity<?> login(String email, String password) {
-        if (isEmptyOrWhitespace(email) || isEmptyOrWhitespace(password)) {
-            return new ResponseEntity<>("Correo y contraseña son campos requeridos", HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<?> getUserProfile(String email) {
+        if (isEmptyOrWhitespace(email)) {
+            return new ResponseEntity<>("El correo es un campo requerido", HttpStatus.BAD_REQUEST);
         }
 
-        List<User> existingUsers = userRepository.findByEmail(email);
+        Optional<User> existingUser = userRepository.findByEmail(email);
 
-        if (existingUsers.isEmpty()) {
-            return new ResponseEntity<>("Correo o contraseña incorrectos", HttpStatus.UNAUTHORIZED);
+        if (existingUser.isEmpty()) {
+            return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
         }
 
-        User user = existingUsers.get(0);
-
-        if (!user.getPassword().equals(password)) {
-            return new ResponseEntity<>("Correo o contraseña incorrectos", HttpStatus.UNAUTHORIZED);
-        }
+        User user = existingUser.get();
 
         List<ChatMessage> receivedMessages = chatMessageService.getReceivedMessagesForUser(user);
         int receivedMessageCount = receivedMessages.size();

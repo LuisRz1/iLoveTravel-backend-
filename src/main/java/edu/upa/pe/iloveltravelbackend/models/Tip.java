@@ -1,0 +1,74 @@
+package edu.upa.pe.iloveltravelbackend.models;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "tips")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Tip {
+    @Getter
+    @Id
+    @Column(name = "tip_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long tipid;
+    @Getter
+    @Column(name = "tip_title")
+    private String tiptitle;
+    @Getter
+    @Column(name = "tip_location")
+    private String tiplocation;
+    @Getter
+    @Column(name = "tip_descripcion")
+    private String tipdescripcion;
+    @Getter
+    @Column(name = "tip_imagen")
+    private String tipimagen;
+
+
+
+    public Long getTipid() {
+        return tipid;
+    }
+
+    public void setTipid(Long tipid) {
+        this.tipid = tipid;
+    }
+
+    public String getTiptitle() {
+        return tiptitle;
+    }
+
+    public void setTiptitle(String tiptitle) {
+        this.tiptitle = tiptitle;
+    }
+
+    public String getTiplocation() {
+        return tiplocation;
+    }
+
+    public void setTiplocation(String tiplocation) {
+        this.tiplocation = tiplocation;
+    }
+
+    public String getTipdescripcion() {
+        return tipdescripcion;
+    }
+
+    public void setTipdescripcion(String tipdescripcion) {
+        this.tipdescripcion = tipdescripcion;
+    }
+
+    public String getTipimagen() {
+        return tipimagen;
+    }
+
+    public void setTipimagen(String tipimagen) {
+        this.tipimagen = tipimagen;
+    }
+}
