@@ -12,6 +12,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Tip {
+    public enum TipType {
+        COMIDA,
+        HOSPEDAJE,
+        ATRACCIONES,
+        AHORROS,
+        TRANSPORTE
+    }
     @Getter
     @Id
     @Column(name = "tip_id")
@@ -29,7 +36,21 @@ public class Tip {
     @Getter
     @Column(name = "tip_imagen")
     private String tipimagen;
+    @Getter
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tip_type")
+    private TipType tiptype;
+    @Getter
+    @Column(name = "ranking")
+    private Double ranking;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "article_id")
+    private Article article;
 
 
     public Long getTipid() {
@@ -70,5 +91,37 @@ public class Tip {
 
     public void setTipimagen(String tipimagen) {
         this.tipimagen = tipimagen;
+    }
+
+    public TipType getTiptype() {
+        return tiptype;
+    }
+
+    public void setTiptype(TipType tiptype) {
+        this.tiptype = tiptype;
+    }
+
+    public Double getRanking() {
+        return ranking;
+    }
+
+    public void setRanking(Double ranking) {
+        this.ranking = ranking;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Article getArticle() {
+        return article;
+    }
+
+    public void setArticle(Article article) {
+        this.article = article;
     }
 }

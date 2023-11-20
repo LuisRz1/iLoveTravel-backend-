@@ -50,7 +50,6 @@ public class UserController {
     @PostMapping("/search")
     public ResponseEntity<?> searchUsers(@RequestBody Map<String, String> searchRequest) {
         if (searchRequest.containsKey("firstName") && searchRequest.containsKey("lastName")) {
-            // Búsqueda por nombre
             String firstName = searchRequest.get("firstName");
             String lastName = searchRequest.get("lastName");
             try {
@@ -60,7 +59,6 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             }
         } else if (searchRequest.containsKey("nationality")) {
-            // Búsqueda por país
             String nationality = searchRequest.get("nationality");
             try {
                 List<UserDTO> users = userService.searchUsersByCountry(nationality);
@@ -95,7 +93,7 @@ public class UserController {
         }
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Correo y/o contraseña incorrecta");
         }
-    @PostMapping("/profile")
+    @GetMapping("/profile")
     public ResponseEntity<?> getUserProfile(@RequestParam String email) {
         return userService.getUserProfile(email);
     }

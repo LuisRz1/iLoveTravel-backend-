@@ -36,14 +36,11 @@ public class UserService {
         return userProfiles;
     }
     public List<UserDTO> searchUsers(String firstName, String lastName) {
-        // Realizar la búsqueda en la base de datos
         List<User> users = userRepository.findByFirstNameAndLastName(firstName, lastName);
 
         if (users.isEmpty()) {
             throw new IllegalStateException("Usuario no encontrado");
         }
-
-        // Mapear los resultados a UserDTO y devolverlos
         List<UserDTO> userDTOs = users.stream()
                 .map(user -> new UserDTO(user))
                 .collect(Collectors.toList());
@@ -51,14 +48,12 @@ public class UserService {
     }
 
     public List<UserDTO> searchUsersByCountry(String country) {
-        // Realizar la búsqueda en la base de datos por país
         List<User> users = userRepository.findByNationality(country);
 
         if (users.isEmpty()) {
             throw new IllegalStateException("Usuarios no encontrados para el país especificado");
         }
 
-        // Mapear los resultados a UserDTO y devolverlos
         List<UserDTO> userDTOs = users.stream()
                 .map(user -> new UserDTO(user))
                 .collect(Collectors.toList());

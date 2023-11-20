@@ -10,7 +10,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -23,6 +25,10 @@ public class User implements UserDetails {
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userid;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Tip> tips = new ArrayList<>();
+
     @Getter
     @Column(name = "first_name")
     private String firstName;
@@ -126,5 +132,13 @@ public class User implements UserDetails {
     public void setRegistrationDate(Instant registrationDate) {
         this.registrationDate = registrationDate;
     }
+    public void addTip(Tip tip) {
+        tips.add(tip);
+        tip.setUser(this);
+    }
 
+    public void removeTip(Tip tip) {
+        tips.remove(tip);
+        tip.setUser(null);
+    }
 }
