@@ -1,20 +1,42 @@
 package edu.upa.pe.iloveltravelbackend.controllers;
 
 import edu.upa.pe.iloveltravelbackend.dtos.UserDTO;
+import edu.upa.pe.iloveltravelbackend.mappers.LoginRequest;
+import edu.upa.pe.iloveltravelbackend.mappers.LoginResponse;
+import edu.upa.pe.iloveltravelbackend.repositories.UserRepository;
+import edu.upa.pe.iloveltravelbackend.util.EncryptionUtil;
+import edu.upa.pe.iloveltravelbackend.util.JwtTokenUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 import edu.upa.pe.iloveltravelbackend.models.User;
 import edu.upa.pe.iloveltravelbackend.services.ChatMessageService;
 import edu.upa.pe.iloveltravelbackend.services.UserService;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
     private final UserService userService;
+
+    @Autowired
+    JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    AuthenticationManager authenticationManager;
     private final ChatMessageService chatMessageService; // Agregar la inyección de ChatMessageService
 
     public UserController(UserService userService, ChatMessageService chatMessageService) {
@@ -28,7 +50,6 @@ public class UserController {
     @PostMapping("/search")
     public ResponseEntity<?> searchUsers(@RequestBody Map<String, String> searchRequest) {
         if (searchRequest.containsKey("firstName") && searchRequest.containsKey("lastName")) {
-            // Búsqueda por nombre
             String firstName = searchRequest.get("firstName");
             String lastName = searchRequest.get("lastName");
             try {
@@ -38,7 +59,6 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             }
         } else if (searchRequest.containsKey("nationality")) {
-            // Búsqueda por país
             String nationality = searchRequest.get("nationality");
             try {
                 List<UserDTO> users = userService.searchUsersByCountry(nationality);
@@ -61,14 +81,20 @@ public class UserController {
         }
     }
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
-        try {
-            String email = loginRequest.get("email");
-            String password = loginRequest.get("password");
-
-            return userService.login(email, password);
-        } catch (IllegalStateException sms) {
-            return new ResponseEntity<>(sms.getMessage(), HttpStatus.UNAUTHORIZED);
+    LoginResponse login(@RequestBody LoginRequest loginRequest) throws Exception{
+        Optional<User> user = userRepository.findByEmail(loginRequest.getEmail());
+        if(user.isPresent()){
+            try {
+                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+                return new LoginResponse(EncryptionUtil.encrypt(jwtTokenUtil.generateToken(user.get())));
+            }catch (AuthenticationException e){
+                //pass to the throw.
+            }
         }
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Correo y/o contraseña incorrecta");
+        }
+    @GetMapping("/profile")
+    public ResponseEntity<?> getUserProfile(@RequestParam String email) {
+        return userService.getUserProfile(email);
     }
 }
