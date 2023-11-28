@@ -105,7 +105,12 @@ public class UserService {
         aboutUser.put("Nombre Completo", user.getFirstName() + " " + user.getLastName());
         aboutUser.put("Email", user.getEmail());
         aboutUser.put("Nacionalidad", user.getNationality());
-        aboutUser.put("Fecha de Cumpleaños", user.getBirthdate().toString());
+
+        if (user.getBirthdate() != null) {
+            aboutUser.put("Fecha de Cumpleaños", user.getBirthdate().toString());
+        } else {
+            aboutUser.put("Fecha de Cumpleaños", "No especificada");
+        }
 
         Map<String, List<String>> receivedMessagesMap = new LinkedHashMap<>();
         for (ChatMessage message : receivedMessages) {

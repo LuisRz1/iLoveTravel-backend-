@@ -141,4 +141,15 @@ public class User implements UserDetails {
         tips.remove(tip);
         tip.setUser(null);
     }
+
+    public User(Long userid, String firstName, String lastName, String email, String password, String nationality, LocalDate birthdate, Instant registrationDate) {
+        this.userid = userid;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.nationality = nationality;
+        this.birthdate = birthdate;
+        this.registrationDate = registrationDate;
+    }
 }
