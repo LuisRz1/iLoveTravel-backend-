@@ -82,13 +82,13 @@ public class User implements UserDetails {
         return null;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     @Override
     public String getUsername() {
         return email;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     @Override

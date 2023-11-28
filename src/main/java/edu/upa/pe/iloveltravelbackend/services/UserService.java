@@ -67,7 +67,6 @@ public class UserService {
     }
     public String addUser(User user){
         Optional<User> existingUserByEmail = userRepository.findByEmail(user.getEmail());
-        user.setRegistrationDate(Instant.now());
         if (isEmptyOrWhitespace(user.getFirstName()) || isEmptyOrWhitespace(user.getLastName()) || isEmptyOrWhitespace(user.getEmail()) || isEmptyOrWhitespace(user.getNationality()) || isEmptyOrWhitespace(user.getPassword()) || user.getBirthdate() == null) {
             throw new IllegalStateException("Todos los campos son requeridos");
         }
@@ -77,7 +76,7 @@ public class UserService {
         if(user.getPassword() != null && user.getPassword().length() > 8){
             throw new IllegalStateException("La contraseña debe tener menos de 8 caracteres");
         }
-
+        user.setRegistrationDate(Instant.now());
         userRepository.save(user);
         return "Usuario registrado correctamente";
 

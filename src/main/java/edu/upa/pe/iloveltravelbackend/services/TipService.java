@@ -42,8 +42,6 @@ public class TipService {
         return tipsAll;
     }
 
-
-
     public void updateTipRanking(Long tipid, Double stars) {
         if (stars == null || !Arrays.asList(1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0).contains(stars)) {
             throw new IllegalArgumentException("Las estrellas solo pueden ser enteras o tener decimal 5");

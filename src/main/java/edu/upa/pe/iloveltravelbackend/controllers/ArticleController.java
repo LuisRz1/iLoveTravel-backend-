@@ -1,6 +1,7 @@
 package edu.upa.pe.iloveltravelbackend.controllers;
 
 import edu.upa.pe.iloveltravelbackend.dtos.ArticleDTO;
+import edu.upa.pe.iloveltravelbackend.dtos.TipDTO;
 import edu.upa.pe.iloveltravelbackend.models.Article;
 import edu.upa.pe.iloveltravelbackend.services.ArticleService;
 import org.springframework.http.HttpStatus;
@@ -20,12 +21,17 @@ public class ArticleController {
     @PostMapping("/search")
     public ResponseEntity<?> searchArticle(@RequestBody Article article) {
         try {
-            List<ArticleDTO> articles = articleService.searchArticle(article);
-            return ResponseEntity.ok(articles);
+            List<TipDTO> tips = articleService.searchArticle(article);
+            return ResponseEntity.ok(tips);
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+    @GetMapping("/viewPlaces")
+    public List<ArticleDTO> getAllArticles() {
+        return articleService.getAllArticles();
+    }
+
     @PostMapping("/create")
     public ResponseEntity<?> addArticle(@RequestBody Article article){
         try{

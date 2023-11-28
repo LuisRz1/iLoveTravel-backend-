@@ -10,8 +10,6 @@ public class TipDTO {
     private Tip.TipType tipType;
     private Double ranking;
     private UserDTO userDTO;
-    private ArticleDTO articleDTO;
-
     public TipDTO(Tip tip) {
         this.tipTitle = tip.getTiptitle();
         this.tipLocation = tip.getTiplocation();
@@ -20,7 +18,6 @@ public class TipDTO {
         this.tipType = tip.getTiptype();
         this.ranking = tip.getRanking();
         this.userDTO = new UserDTO(tip.getUser());
-        this.articleDTO = new ArticleDTO(tip.getArticle());
     }
 
     public UserDTO getUserDTO() {
@@ -31,13 +28,6 @@ public class TipDTO {
         this.userDTO = userDTO;
     }
 
-    public ArticleDTO getArticleDTO() {
-        return articleDTO;
-    }
-
-    public void setArticleDTO(ArticleDTO articleDTO) {
-        this.articleDTO = articleDTO;
-    }
 
     public String getTipTitle() {
         return tipTitle;
