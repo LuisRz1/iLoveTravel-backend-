@@ -9,6 +9,7 @@ import edu.upa.pe.iloveltravelbackend.services.TipService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class TipController {
     @PostMapping("/añadir")
     public ResponseEntity<?> addTip(@RequestBody Tip tip){
         try{
+            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             String newTip = tipService.addTip(tip);
             return new ResponseEntity<>(newTip, HttpStatus.CREATED);
         } catch (IllegalStateException sms){

@@ -1,9 +1,12 @@
 package edu.upa.pe.iloveltravelbackend.services;
 
 import edu.upa.pe.iloveltravelbackend.dtos.ArticleDTO;
+import edu.upa.pe.iloveltravelbackend.dtos.TipDTO;
 import edu.upa.pe.iloveltravelbackend.models.Article;
+import edu.upa.pe.iloveltravelbackend.models.Tip;
 import edu.upa.pe.iloveltravelbackend.models.User;
 import edu.upa.pe.iloveltravelbackend.repositories.ArticleRepository;
+import edu.upa.pe.iloveltravelbackend.repositories.TipRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +21,13 @@ import java.util.stream.Collectors;
 @Transactional
 public class ArticleService {
     private final ArticleRepository articleRepository;
-    public ArticleService(ArticleRepository articleRepository) {
-        this.articleRepository = articleRepository;
-    }
+    private final TipRepository tipRepository;
 
-    public List<ArticleDTO> searchArticle(Article article) {
+    public ArticleService(ArticleRepository articleRepository, TipRepository tipRepository) {
+        this.articleRepository = articleRepository;
+        this.tipRepository = tipRepository;
+    }
+    public List<TipDTO> searchArticle(Article article) {
         String country = article.getCountry();
         String city = article.getCity();
 
@@ -36,11 +41,23 @@ public class ArticleService {
             throw new IllegalStateException("Artículo No Encontrado");
         }
 
-        List<ArticleDTO> articleDTOs = articles.stream()
-                .map(ArticleDTO::new)
+        List<Tip> tips = tipRepository.findByArticle(articles.get(0)); // Obtén tips del primer artículo encontrado
+
+        List<TipDTO> tipDTOs = tips.stream()
+                .map(TipDTO::new)
                 .collect(Collectors.toList());
-        return articleDTOs;
+
+        return tipDTOs;
     }
+    public List<ArticleDTO> getAllArticles() {
+        List<Article> articles = articleRepository.findAll();
+        List<ArticleDTO> articlesAll = new ArrayList<>();
+        for (Article article : articles) {
+            articlesAll.add(new ArticleDTO(article));
+        }
+        return articlesAll;
+    }
+
     private boolean isEmptyOrWhitespace(String value) {
         return value == null || value.trim().isEmpty();
     }
