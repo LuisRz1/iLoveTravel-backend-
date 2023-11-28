@@ -5,21 +5,30 @@ import lombok.Data;
 import lombok.Getter;
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class User implements UserDetails {
     @Getter
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userid;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Tip> tips = new ArrayList<>();
+
     @Getter
     @Column(name = "first_name")
     private String firstName;
@@ -67,9 +76,41 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
     public String getPassword() {
         return password;
     }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
     public void setPassword(String password) {
         this.password = password;
     }
@@ -91,5 +132,13 @@ public class User {
     public void setRegistrationDate(Instant registrationDate) {
         this.registrationDate = registrationDate;
     }
+    public void addTip(Tip tip) {
+        tips.add(tip);
+        tip.setUser(this);
+    }
 
+    public void removeTip(Tip tip) {
+        tips.remove(tip);
+        tip.setUser(null);
+    }
 }
