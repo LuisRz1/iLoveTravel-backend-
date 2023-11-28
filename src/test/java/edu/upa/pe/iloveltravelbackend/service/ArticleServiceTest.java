@@ -1,23 +1,30 @@
-package edu.upa.pe.iloveltravelbackend.services.JUnit;
-
+package edu.upa.pe.iloveltravelbackend.service;
 import edu.upa.pe.iloveltravelbackend.dtos.ArticleDTO;
 import edu.upa.pe.iloveltravelbackend.models.Article;
 import edu.upa.pe.iloveltravelbackend.repositories.ArticleRepository;
 import edu.upa.pe.iloveltravelbackend.services.ArticleService;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import java.util.Collections;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-class ArticleServiceJUnitTest {
+
+
+public class ArticleServiceTest {
+    @InjectMocks
     private ArticleService articleService;
+
+    @Mock
     private ArticleRepository articleRepository;
 
     @BeforeEach
     public void setUp() {
-        articleRepository = mock(ArticleRepository.class);
-        articleService = new ArticleService(articleRepository);
+        MockitoAnnotations.initMocks(this);
     }
 
     @Test
@@ -33,7 +40,6 @@ class ArticleServiceJUnitTest {
         assertNotNull(result);
         assertEquals(1, result.size());
     }
-
     @Test
     public void testSearchArticle_NoCountry() {
         Article article = new Article();

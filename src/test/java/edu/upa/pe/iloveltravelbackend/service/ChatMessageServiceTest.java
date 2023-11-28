@@ -1,14 +1,4 @@
-package edu.upa.pe.iloveltravelbackend.services.JUnit;
-
-import static org.aspectj.bridge.MessageUtil.fail;
-import static org.mockito.Mockito.*;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+package edu.upa.pe.iloveltravelbackend.service;
 import edu.upa.pe.iloveltravelbackend.models.ChatMessage;
 import edu.upa.pe.iloveltravelbackend.models.User;
 import edu.upa.pe.iloveltravelbackend.repositories.ChatMessageRepository;
@@ -17,18 +7,31 @@ import edu.upa.pe.iloveltravelbackend.services.ChatMessageService;
 import edu.upa.pe.iloveltravelbackend.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-class ChatMessageServiceJUnitTest {
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.time.Instant;
+public class ChatMessageServiceTest {
+    @InjectMocks
     private ChatMessageService chatMessageService;
+
+    @Mock
     private ChatMessageRepository chatMessageRepository;
+
+    @Mock
     private UserRepository userRepository;
+
+    @Mock
     private UserService userService;
 
     @BeforeEach
     void setUp() {
-        chatMessageRepository = mock(ChatMessageRepository.class);
-        userRepository = mock(UserRepository.class);
-        userService = mock(UserService.class);
-        chatMessageService = new ChatMessageService(chatMessageRepository, userRepository, userService);
+        // Initialize mockito annotations
+        MockitoAnnotations.initMocks(this);
     }
 
     @Test
@@ -40,7 +43,7 @@ class ChatMessageServiceJUnitTest {
         chatMessageService.saveChatMessage(chatMessage);
 
         // Assert
-        verify(chatMessageRepository).save(chatMessage);
+        Mockito.verify(chatMessageRepository).save(chatMessage);
     }
 
     @Test
@@ -48,13 +51,13 @@ class ChatMessageServiceJUnitTest {
         // Arrange
         User sender = new User();
         User receiver = new User();
-        when(chatMessageRepository.findAllBySenderAndReceiverOrderByDateSentAsc(sender, receiver)).thenReturn(new ArrayList<>());
+        Mockito.when(chatMessageRepository.findAllBySenderAndReceiverOrderByDateSentAsc(sender, receiver)).thenReturn(new ArrayList<>());
 
         // Act
         List<ChatMessage> messages = chatMessageService.getMessagesBySenderAndReceiver(sender, receiver);
 
         // Assert
-        verify(chatMessageRepository).findAllBySenderAndReceiverOrderByDateSentAsc(sender, receiver);
+        Mockito.verify(chatMessageRepository).findAllBySenderAndReceiverOrderByDateSentAsc(sender, receiver);
         assert(messages.isEmpty());
     }
 
@@ -62,13 +65,13 @@ class ChatMessageServiceJUnitTest {
     void getReceivedMessagesForUser() {
         // Arrange
         User receiver = new User();
-        when(chatMessageRepository.findAllByReceiverOrderByDateSentAsc(receiver)).thenReturn(new ArrayList<>());
+        Mockito.when(chatMessageRepository.findAllByReceiverOrderByDateSentAsc(receiver)).thenReturn(new ArrayList<>());
 
         // Act
         List<ChatMessage> receivedMessages = chatMessageService.getReceivedMessagesForUser(receiver);
 
         // Assert
-        verify(chatMessageRepository).findAllByReceiverOrderByDateSentAsc(receiver);
+        Mockito.verify(chatMessageRepository).findAllByReceiverOrderByDateSentAsc(receiver);
         assert(receivedMessages.isEmpty());
     }
 
@@ -77,13 +80,13 @@ class ChatMessageServiceJUnitTest {
         // Arrange
         User user = new User();
         List<ChatMessage> receivedMessages = new ArrayList<>();
-        when(chatMessageRepository.findAllByReceiverOrderByDateSentAsc(user)).thenReturn(receivedMessages);
+        Mockito.when(chatMessageRepository.findAllByReceiverOrderByDateSentAsc(user)).thenReturn(receivedMessages);
 
         // Act
         int receivedMessagesCount = chatMessageService.getReceivedMessagesCount(user);
 
         // Assert
-        verify(chatMessageRepository).findAllByReceiverOrderByDateSentAsc(user);
+        Mockito.verify(chatMessageRepository).findAllByReceiverOrderByDateSentAsc(user);
         assert(receivedMessagesCount == receivedMessages.size());
     }
 
@@ -105,16 +108,16 @@ class ChatMessageServiceJUnitTest {
         chatMessage.setMessage("Hello, Jane!");
         chatMessage.setDateSent(Instant.now());
 
-        when(userRepository.findByFirstNameAndLastName("John", "Doe")).thenReturn(List.of(sender));
-        when(userRepository.findByFirstNameAndLastName("Jane", "Doe")).thenReturn(List.of(receiver));
-        when(chatMessageRepository.save(any(ChatMessage.class))).thenReturn(chatMessage);
+        Mockito.when(userRepository.findByFirstNameAndLastName("John", "Doe")).thenReturn(List.of(sender));
+        Mockito.when(userRepository.findByFirstNameAndLastName("Jane", "Doe")).thenReturn(List.of(receiver));
+        Mockito.when(chatMessageRepository.save(Mockito.any(ChatMessage.class))).thenReturn(chatMessage);
 
         // Act
         ChatMessage savedMessage = chatMessageService.sendMessage(messageData);
 
         // Assert
-        verify(userRepository, times(2)).findByFirstNameAndLastName(anyString(), anyString());
-        verify(chatMessageRepository).save(any(ChatMessage.class));
+        Mockito.verify(userRepository, Mockito.times(2)).findByFirstNameAndLastName(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(chatMessageRepository).save(Mockito.any(ChatMessage.class));
         assert(savedMessage.getSender() == sender);
         assert(savedMessage.getReceiver() == receiver);
         assert(savedMessage.getMessage().equals("Hello, Jane!"));
