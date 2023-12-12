@@ -27,6 +27,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
+
     private final UserService userService;
 
     @Autowired
@@ -43,10 +44,12 @@ public class UserController {
         this.userService = userService;
         this.chatMessageService = chatMessageService; // Inyectar el servicio de ChatMessageService
     }
+
     @GetMapping("/profiles")
     public List<UserDTO> getAllUserProfiles() {
         return userService.getAllUserProfiles();
     }
+
     @PostMapping("/search")
     public ResponseEntity<?> searchUsers(@RequestBody Map<String, String> searchRequest) {
         if (searchRequest.containsKey("firstName") && searchRequest.containsKey("lastName")) {
@@ -72,27 +75,32 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> addUser(@RequestBody User user){
-        try{
+    public ResponseEntity<?> addUser(@RequestBody User user) {
+        try {
             String newUser = userService.addUser(user);
             return new ResponseEntity<>(newUser, HttpStatus.CREATED);
-        } catch (IllegalStateException sms){
+        } catch (IllegalStateException sms) {
             return new ResponseEntity<>(sms.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest loginRequest) throws Exception{
+    public LoginResponse login(@RequestBody LoginRequest loginRequest) throws Exception {
         Optional<User> user = userRepository.findByEmail(loginRequest.getEmail());
-        if(user.isPresent()){
+        System.out.println(loginRequest.getEmail() + " " + loginRequest.getPassword());
+
+        if (user.isPresent()) {
+
             try {
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
                 return new LoginResponse(EncryptionUtil.encrypt(jwtTokenUtil.generateToken(user.get())));
-            }catch (AuthenticationException e){
+            } catch (AuthenticationException e) {
                 //pass to the throw.
             }
         }
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Correo y/o contraseña incorrecta");
-        }
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Correo y/o contraseña incorrecta");
+    }
+
     @GetMapping("/profile")
     public ResponseEntity<?> getUserProfile(@RequestParam String email) {
         return userService.getUserProfile(email);

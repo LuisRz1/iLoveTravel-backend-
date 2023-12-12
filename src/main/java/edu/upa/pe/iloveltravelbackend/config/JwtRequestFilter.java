@@ -24,7 +24,7 @@ import java.io.IOException;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
-
+ 
     @Autowired
     JwtUserDetailsService jwtUserDetailsService;
 
@@ -35,7 +35,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String tokenFromRequest = request.getHeader("Authorization");
         String username=null;
-        String encryptedJwtToken=null;
+        String encryptedJwtToken;
         String jwtToken=null;
         logger.debug("Inside JwtRequestFilter--OncePerRequestFilter");
         // JWT Token is in the form "Bearer token". Remove Bearer word and get only the Token
